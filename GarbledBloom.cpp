@@ -118,7 +118,7 @@ mpz_class GarbledBloomFilter::generateRandomBits(int bits) const {
 
 void GarbledBloomFilter::generate(const std::vector<std::string>& inputArray) {
     //调试信息
-    std::cout << "Generating Garbled Bloom Filter with " << inputArray.size() << " elements..." << std::endl;
+    //std::cout << "Generating Garbled Bloom Filter with " << inputArray.size() << " elements..." << std::endl;
     // 初始化所有位置为空
     for (int i = 0; i < m; i++) {
         garbledBloomArray[i] = 0;
@@ -126,14 +126,14 @@ void GarbledBloomFilter::generate(const std::vector<std::string>& inputArray) {
     
     for (const auto& element : inputArray) {
         // 加密数字1，对应Python代码中的 one = public_key.encrypt(1)
-        //mpz_class one_text = publicKey.encrypt(1);
-        mpz_class one_text;
+        mpz_class one_text = publicKey.encrypt(1);
+        /*mpz_class one_text;
 	try {
 	    one_text = publicKey.encrypt(1);
 	} catch (const std::exception& e) {
 	    std::cerr << "Encryption failed: " << e.what() << std::endl;
 	    throw;
-	}
+	} */
 
         
         int emptySlot = -1;
