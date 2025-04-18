@@ -78,10 +78,15 @@ std::vector<size_t> GarbledBloomFilter::computeHashes(const std::string& element
         // 将十六进制字符串转换为整数并对m取模
         size_t hashValue = 0;
         // 直接使用哈希值的字节数组计算整数
-        for (size_t i = 0; i < hash.size(); ++i) {
+        /*for (size_t i = 0; i < hash.size(); ++i) {
             hashValue = (hashValue << 8) | static_cast<unsigned char>(hash[i]);
+        } */
+        for (size_t i = 0; i < hexHash.length(); i += 8) {
+            std::string chunk = hexHash.substr(i, std::min(size_t(8), hexHash.length() - i));
+            size_t chunkValue = std::stoull(chunk, nullptr, 16);
+            hashValue ^= chunkValue;
         }
-        
+	    
         hashPositions.push_back(hashValue % m);
     }
     
