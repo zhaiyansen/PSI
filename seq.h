@@ -1,29 +1,34 @@
 #ifndef SEQ_H
 #define SEQ_H
 
+#include "PaillierCrypto.h"
 #include <random>
 
 class EncryptedNumber {
+private:
+    mpz_class ciphertext;
+    const PaillierPublicKey* public_key; // 使用指针避免拷贝
+
 public:
-    int value;
-    EncryptedNumber(int v = 0) : value(v) {}
+    EncryptedNumber(const mpz_class& ct, const PaillierPublicKey& pk);
+    
+    // 获取加密值和公钥
+    const mpz_class& getCiphertext() const { return ciphertext; }
+    const PaillierPublicKey& getPublicKey() const { return *public_key; }
+
+    // 运算符重载
     EncryptedNumber operator+(const EncryptedNumber& other) const;
-    EncryptedNumber operator*(int scalar) const;
+    EncryptedNumber operator*(const mpz_class& scalar) const;
     EncryptedNumber operator-() const;
 };
 
-class PublicKey {
-public:
-    EncryptedNumber encrypt(int value);
-};
+// 安全比较协议函数
+EncryptedNumber SEP_TMPSI(const EncryptedNumber& x, const EncryptedNumber& y,
+                         const PaillierPrivateKey& sk);
+EncryptedNumber SEP_MPSI(const EncryptedNumber& x, const EncryptedNumber& y,
+                        const PaillierPrivateKey& sk);
+mpz_class SCP(const EncryptedNumber& x, const mpz_class& threshold,
+             const PaillierPrivateKey& sk);
 
-class PrivateKey {
-public:
-    int decrypt(const EncryptedNumber& num);
-};
-
-EncryptedNumber SEP(const EncryptedNumber& x, const EncryptedNumber& y);
-int SCP(const EncryptedNumber& x, int threshold);
-
-#endif // ENCRYPTED_OPERATIONS_H
+#endif // SEQ_H
 

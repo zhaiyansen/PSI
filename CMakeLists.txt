@@ -13,22 +13,23 @@ find_library(NTL_LIBRARY ntl)
 find_package(OpenSSL REQUIRED)
 
 # 添加源文件
-add_executable(threshhold
+add_executable(a
     main.cpp
     PaillierCrypto.cpp
-    GarbledBloom.cpp
+    #GarbledBloom.cpp
     seq.cpp
-    psi_operations.cpp
+    #TMPSI.cpp
+    #MPSI.cpp
 )
 
 # 包含头文件目录
-target_include_directories(threshhold PRIVATE 
+target_include_directories(a PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${OPENSSL_INCLUDE_DIR}
 )
 
 # 链接库
-target_link_libraries(threshhold
+target_link_libraries(a
     ${GMP_LIBRARY}
     ${GMPXX_LIBRARY}
     ${NTL_LIBRARY}

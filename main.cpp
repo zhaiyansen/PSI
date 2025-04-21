@@ -1,61 +1,67 @@
-#include "psi_operations.h"
 #include "PaillierCrypto.h"
 #include <iostream>
+#include <string>
 
 int main() {
     try {
-        // 1. 初始化参数
-        const int t = 10;
-        const int n = 1 << 6; // 64
-        const int key_bits = 1024; // Paillier密钥长度
-
-        std::cout << "=== PSI Test ===" << std::endl;
-        std::cout << "Parameters: t=" << t << ", n=" << n 
-                  << ", key_bits=" << key_bits << std::endl;
-
-        // 2. 生成Paillier密钥对
-        std::cout << "\nGenerating Paillier keys..." << std::endl;
-        auto start = std::chrono::high_resolution_clock::now();
-        PaillierKeyPair keys = PaillierKeyPair::generate(key_bits);
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "Key generation time: " << duration.count() << "ms" << std::endl;
-
-        // 3. 创建PSI操作实例
-        std::cout << "\nInitializing PSI operations..." << std::endl;
-        PSIOperations psi(t, n, keys.get_public_key());
-
-        // 4. 生成所有GBF
-        std::cout << "\nGenerating Garbled Bloom Filters..." << std::endl;
-        psi.generateAllGBFs();
-
-        // 5. 计算交集
-        std::cout << "\nComputing intersection..." << std::endl;
-        psi.computeIntersection();
-
-        // 6. 获取并显示最终结果
-        const std::vector<mpz_class>& intersection = psi.getIntersection();
-        std::cout << "\nFinal intersection results (" << intersection.size() << " elements):" << std::endl;
-        for (const auto& num : intersection) {
-            std::cout << num.get_str() << " ";
-        }
-        std::cout << std::endl;
-
-        // 7. 验证结果
-        std::cout << "\nVerifying results..." << std::endl;
-        if (!intersection.empty()) {
-            std::cout << "First element: " << intersection[0].get_str() 
-                      << ", Last element: " << intersection.back().get_str() << std::endl;
-        } else {
-            std::cout << "No intersection found." << std::endl;
-        }
-
-        std::cout << "\n=== Test Completed ===" << std::endl;
+        std::cout << "Generating Paillier key pair (2048 bits)..." << std::endl;
+        PaillierKeyPair key_pair = PaillierKeyPair::generate(2048);
+        
+        PaillierPublicKey public_key = key_pair.get_public_key();
+        PaillierPrivateKey private_key = key_pair.get_private_key();
+        
+        std::cout << "Key generation complete." << std::endl;
+        
+        // 测试加密和解密
+        mpz_class m1(123456);
+        std::cout << "Original message m1: " << m1 << std::endl;
+        
+        mpz_class c1 = public_key.encrypt(m1);
+        std::cout << "Encrypted c1: " << c1 << std::endl;
+        
+        mpz_class decrypted_m1 = private_key.decrypt(c1);
+        std::cout << "Decrypted m1: " << decrypted_m1 << std::endl;
+        
+        // 测试加密和解密
+        mpz_class m3(-50);
+        std::cout << "Original message m3: " << m3 << std::endl;
+        
+        mpz_class c3 = public_key.encrypt(m3);
+        std::cout << "Encrypted c3: " << c3 << std::endl;
+        
+        mpz_class decrypted_m3 = private_key.decrypt(c3);
+        std::cout << "Decrypted m3: " << decrypted_m3 << std::endl;
+        
+        // 测试同态加法
+        mpz_class m2(78901);
+        std::cout << "Original message m2: " << m2 << std::endl;
+        
+        mpz_class c2 = public_key.encrypt(m2);
+        std::cout << "Encrypted c2: " << c2 << std::endl;
+        
+        mpz_class c_sum = PaillierHomomorphic::add(public_key, c1, c2);
+        std::cout << "Encrypted sum c1+c2: " << c_sum << std::endl;
+        
+        mpz_class decrypted_sum = private_key.decrypt(c_sum);
+        std::cout << "Decrypted sum: " << decrypted_sum << std::endl;
+        std::cout << "Actual sum (m1+m2): " << (m1 + m2) << std::endl;
+        
+        // 测试标量乘法
+        mpz_class scalar(5);
+        std::cout << "Scalar value: " << scalar << std::endl;
+        
+        mpz_class c_product = PaillierHomomorphic::multiply_scalar(public_key, c1, scalar);
+        std::cout << "Encrypted product c1*scalar: " << c_product << std::endl;
+        
+        mpz_class decrypted_product = private_key.decrypt(c_product);
+        std::cout << "Decrypted product: " << decrypted_product << std::endl;
+        std::cout << "Actual product (m1*scalar): " << (m1 * scalar) << std::endl;
+        
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }
-
+    
     return 0;
 }
 

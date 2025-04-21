@@ -15,7 +15,7 @@ public:
     GarbledBloomFilter(int numElements, const PaillierPublicKey& pubKey);
     
     // 生成Garbled Bloom Filter
-    void generate(const std::vector<std::string>& inputArray);
+    void generate(const std::vector<std::string>& inputArray, int a);
     
     // 查询Garbled Bloom Filter
     mpz_class query(const std::string& element) const;

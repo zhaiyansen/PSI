@@ -77,7 +77,7 @@ std::vector<size_t> GarbledBloomFilter::computeHashes(const std::string& element
         
         // 将十六进制字符串转换为整数并对m取模
         size_t hashValue = 0;
-        // 直接使用哈希值的字节数组计算整数
+         // 直接使用哈希值的字节数组计算整数
         /*for (size_t i = 0; i < hash.size(); ++i) {
             hashValue = (hashValue << 8) | static_cast<unsigned char>(hash[i]);
         } */
@@ -86,7 +86,7 @@ std::vector<size_t> GarbledBloomFilter::computeHashes(const std::string& element
             size_t chunkValue = std::stoull(chunk, nullptr, 16);
             hashValue ^= chunkValue;
         }
-	    
+        
         hashPositions.push_back(hashValue % m);
     }
     
@@ -121,9 +121,9 @@ mpz_class GarbledBloomFilter::generateRandomBits(int bits) const {
 }
 
 
-void GarbledBloomFilter::generate(const std::vector<std::string>& inputArray) {
+void GarbledBloomFilter::generate(const std::vector<std::string>& inputArray, int a) {
     //调试信息
-    //std::cout << "Generating Garbled Bloom Filter with " << inputArray.size() << " elements..." << std::endl;
+ /*   std::cout << "Generating Garbled Bloom Filter with " << inputArray.size() << " elements..." << std::endl;*/
     // 初始化所有位置为空
     for (int i = 0; i < m; i++) {
         garbledBloomArray[i] = 0;
@@ -131,14 +131,14 @@ void GarbledBloomFilter::generate(const std::vector<std::string>& inputArray) {
     
     for (const auto& element : inputArray) {
         // 加密数字1，对应Python代码中的 one = public_key.encrypt(1)
-        mpz_class one_text = publicKey.encrypt(1);
+        mpz_class one_text = publicKey.encrypt(a);
         /*mpz_class one_text;
 	try {
 	    one_text = publicKey.encrypt(1);
 	} catch (const std::exception& e) {
 	    std::cerr << "Encryption failed: " << e.what() << std::endl;
 	    throw;
-	} */
+	}*/
 
         
         int emptySlot = -1;
@@ -185,7 +185,7 @@ mpz_class GarbledBloomFilter::query(const std::string& element) const {
     for (const auto& j : hashPositions) {
         recovered = recovered ^ garbledBloomArray[j];
     }
-    
+    //mpz_class recover = publicKey.encrypt(recovered);
     return recovered;
 }
 
